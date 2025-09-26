@@ -1,0 +1,517 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "DCENameEnterpriseApps": {
+            "type": "String",
+            "defaultValue": "dce-EnterpriseAppsInventory",
+            "metadata": {
+                "description": "Name of the Data Collection Endpoint"
+            }
+        },
+        "DCRNameEnterpriseApps": {
+            "type": "String",
+            "defaultValue": "dcr-EnterpriseAppsInventory",
+            "metadata": {
+                "description": "Name of the Data Collection Rule"
+            }
+        },
+        "logAnalyticsWorkspaceId": {
+            "type": "String",
+            "defaultValue": "73d0e3cb-8541-471d-8cc0-cbece4b569fc",
+            "metadata": {
+                "description": "Workspace ID of the Log Analytics workspace"
+            }
+        },
+        "logAnalyticsWorkspaceName": {
+            "type": "String",
+            "defaultValue": "log-lanja",
+            "metadata": {
+                "description": "Name of the Log Analytics workspace"
+            }
+        },
+        "customTableNameNameEnterpriseApps": {
+            "type": "String",
+            "defaultValue": "EnterpriseAppsInventory",
+            "metadata": {
+                "description": "Custom table name without suffix, e.g., 'MyTable' will result in 'MyTable_CL'. ONLY alphabetic characters!"
+            }
+        },
+        "LogicAppNameEnterpriseApps": {
+            "type": "String",
+            "defaultValue": "logic-EnterpriseAppsInventory",
+            "metadata": {
+                "description": "Name for the logic App. Microsofts recommends logic- as prefix"
+            }
+        },
+        "UTCValue": {
+            "type": "String",
+            "defaultValue": "[utcNow()]",
+            "metadata": {
+                "description": "Used internally because of stupid Azure restrictions. Do not change."
+            }
+        }
+    },
+    "variables": {
+        "DelayScriptName": "[concat('delayScript_', parameters('UTCValue'))]",
+        "CustomTableName": "[concat(parameters('customTableNameNameEnterpriseApps'), '_CL')]",
+        "region":"[resourceGroup().location]"
+    },
+    "resources": [
+        //Custom Table
+        {
+            "type": "Microsoft.OperationalInsights/workspaces/tables",
+            "apiVersion": "2021-12-01-preview",
+            "name": "[concat(parameters('logAnalyticsWorkspaceName'), '/', variables('CustomTableName'))]",
+            "properties": {
+                "schema": {
+                    "name": "[concat(parameters('customTableNameNameEnterpriseApps'), '_CL')]",
+                    "columns": [
+                        {
+                            "name": "addIns",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "api",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "appId",
+                            "type": "String"
+                        },
+                        {
+                            "name": "applicationTemplateId",
+                            "type": "String"
+                        },
+                        {
+                            "name": "appRoles",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "certification",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "createdDateTime",
+                            "type": "DateTime"
+                        },
+                        {
+                            "name": "deletedDateTime",
+                            "type": "DateTime"
+                        },
+                        {
+                            "name": "description",
+                            "type": "String"
+                        },
+                        {
+                            "name": "disabledByMicrosoftStatus",
+                            "type": "String"
+                        },
+                        {
+                            "name": "displayName",
+                            "type": "String"
+                        },
+                        {
+                            "name": "groupMembershipClaims",
+                            "type": "String"
+                        },
+                        {
+                            "name": "id",
+                            "type": "String"
+                        },
+                        {
+                            "name": "identifierUris",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "info",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "isDeviceOnlyAuthSupported",
+                            "type": "Bool"
+                        },
+                        {
+                            "name": "isFallbackPublicClient",
+                            "type": "Bool"
+                        },
+                        {
+                            "name": "keyCredentials",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "logo",
+                            "type": "String"
+                        },
+                        {
+                            "name": "nativeAuthenticationApisEnabled",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "notes",
+                            "type": "String"
+                        },
+                        {
+                            "name": "oauth2RequiredPostResponse",
+                            "type": "Bool"
+                        },
+                        {
+                            "name": "optionalClaims",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "parentalControlSettings",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "passwordCredentials",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "publicClient",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "publisherDomain",
+                            "type": "String"
+                        },
+                        {
+                            "name": "requestSignatureVerification",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "requiredResourceAccess",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "samlMetadataUrl",
+                            "type": "String"
+                        },
+                        {
+                            "name": "serviceManagementReference",
+                            "type": "String"
+                        },
+                        {
+                            "name": "servicePrincipalLockConfiguration",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "signInAudience",
+                            "type": "String"
+                        },
+                        {
+                            "name": "spa",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "tags",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "tokenEncryptionKeyId",
+                            "type": "String"
+                        },
+                        {
+                            "name": "uniqueName",
+                            "type": "String"
+                        },
+                        {
+                            "name": "verifiedPublisher",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "web",
+                            "type": "Dynamic"
+                        },
+                        {
+                            "name": "TimeGenerated",
+                            "type": "dateTime"
+                        }
+                    ]
+                },
+                "retentionInDays": 30
+            }
+        },
+        //DCE
+        {
+            "type": "Microsoft.Insights/dataCollectionEndpoints",
+            "apiVersion": "2021-09-01-preview",
+            "name": "[parameters('DCENameEnterpriseApps')]",
+            "location": "[variables('region')]",
+            "properties": {
+                "networkAcls": {
+                    "publicNetworkAccess": "Enabled"
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces/tables', parameters('logAnalyticsWorkspaceName'), variables('CustomTableName'))]"
+            ]
+        },
+        //DCR
+        {
+            "type": "Microsoft.Insights/dataCollectionRules",
+            "apiVersion": "2021-09-01-preview",
+            "name": "[parameters('DCRNameEnterpriseApps')]",
+            "location": "[variables('region')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('DCENameEnterpriseApps'))]"
+            ],
+            "properties": {
+                "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('DCENameEnterpriseApps'))]",
+                "destinations": {
+                    "logAnalytics": [
+                        {
+                            "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+                            "name": "[parameters('logAnalyticsWorkspaceId')]"
+                        }
+                    ]
+                },
+                "dataFlows": [
+                    {
+                        "streams": [
+                            "[concat('Custom-', parameters('customTableNameNameEnterpriseApps'),'_CL')]"
+                        ],
+                        "destinations": [
+                            "[parameters('logAnalyticsWorkspaceId')]"
+                        ],
+                        "transformKql": "source\n| extend TimeGenerated = now()\n"
+                    }
+                ],
+                "dataSources": {
+                    "customLogs": [
+                        {
+                            "name": "customlogsource",
+                            "streams": [
+                                "[concat('Custom-', parameters('customTableNameNameEnterpriseApps'),'_CL')]"
+                            ],
+                            "format": "json",
+                            "compression": "none"
+                        }
+                    ]
+                }
+            }
+        },
+        //Logic App
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('LogicAppNameEnterpriseApps')]",
+            "location": "[variables('region')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Insights/dataCollectionRules', parameters('DCRNameEnterpriseApps'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Disabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "interval": 24,
+                                "frequency": "Hour"
+                            },
+                            "evaluatedRecurrence": {
+                                "interval": 24,
+                                "frequency": "Hour"
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "HTTP_GET_enterprise_applications": {
+                            "runAfter": {},
+                            "type": "Http",
+                            "inputs": {
+                                "uri": "https://graph.microsoft.com/v1.0/servicePrincipals?$select=addIns,api,appId,applicationTemplateId,appRoles,certification,createdDateTime,deletedDateTime,description,disabledByMicrosoftStatus,displayName,groupMembershipClaims,id,identifierUris,info,isDeviceOnlyAuthSupported,isFallbackPublicClient,keyCredentials,logo,nativeAuthenticationApisEnabled,notes,oauth2RequiredPostResponse,optionalClaims,parentalControlSettings,passwordCredentials,publicClient,publisherDomain,requestSignatureVerification,requiredResourceAccess,samlMetadataUrl,serviceManagementReference,servicePrincipalLockConfiguration,signInAudience,spa,tags,tokenEncryptionKeyId,uniqueName,verifiedPublisher,web",
+                                "method": "GET",
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity",
+                                    "audience": "https://graph.microsoft.com"
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "paginationPolicy": {
+                                    "minimumItemCount": 200
+                                },
+                                "contentTransfer": {
+                                    "transferMode": "Chunked"
+                                }
+                            }
+                        },
+                        "HTTP_Send_to_Log_Ingestion_API": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "uri": "[concat(reference(resourceId('Microsoft.Insights/dataCollectionEndpoints', parameters('DCENameEnterpriseApps'))).logsIngestion.endpoint,'/dataCollectionRules/',reference(resourceId('Microsoft.Insights/dataCollectionRules', parameters('DCRNameEnterpriseApps'))).immutableId,'/streams/Custom-',variables('CustomTableName'),'?api-version=2023-01-01')]",
+                                //reference(resourceId('Microsoft.Insights/dataCollectionRules', parameters('DCRNameEnterpriseApps'))).properties.dataCollectionRuleId
+                                "method": "POST",
+                                "body": "@body('Parse_JSON')?['value']",
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity",
+                                    "audience": "https://monitor.azure.com/"
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "contentTransfer": {
+                                    "transferMode": "Chunked"
+                                }
+                            }
+                        },
+                        "Parse_JSON": {
+                            "runAfter": {
+                                "HTTP_GET_enterprise_applications": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('HTTP_GET_enterprise_applications')",
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "body": {
+                                            "type": "object",
+                                            "properties": {
+                                                "value": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "appId": {
+                                                                "type": "string"
+                                                            },
+                                                            "applicationTemplateId": {},
+                                                            "createdDateTime": {
+                                                                "type": "string"
+                                                            },
+                                                            "deletedDateTime": {},
+                                                            "description": {},
+                                                            "disabledByMicrosoftStatus": {},
+                                                            "displayName": {
+                                                                "type": "string"
+                                                            },
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "notes": {},
+                                                            "signInAudience": {
+                                                                "type": "string"
+                                                            },
+                                                            "tags": {
+                                                                "type": "array"
+                                                            },
+                                                            "tokenEncryptionKeyId": {},
+                                                            "addIns": {
+                                                                "type": "array"
+                                                            },
+                                                            "appRoles": {
+                                                                "type": "array"
+                                                            },
+                                                            "info": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "logoUrl": {},
+                                                                    "marketingUrl": {},
+                                                                    "privacyStatementUrl": {},
+                                                                    "supportUrl": {},
+                                                                    "termsOfServiceUrl": {}
+                                                                }
+                                                            },
+                                                            "keyCredentials": {
+                                                                "type": "array"
+                                                            },
+                                                            "passwordCredentials": {
+                                                                "type": "array"
+                                                            },
+                                                            "verifiedPublisher": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "displayName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "verifiedPublisherId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "addedDateTime": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id"
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {}
+                    }
+                }
+            }
+        },
+        //wait 20 sec for Managed Identity Creation
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2020-10-01",
+            "name": "[variables('DelayScriptName')]",
+            "location": "[variables('region')]",
+            "kind": "AzureCLI",
+            "properties": {
+                "azCliVersion": "2.38.0",
+                "timeout": "PT10M",
+                "retentionInterval": "P1D",
+                "scriptContent": "sleep 20",
+                "forceUpdateTag": "[parameters('UTCValue')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows/', parameters('LogicAppNameEnterpriseApps'))]"
+            ]
+        },
+        //role assignment
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceId('Microsoft.Insights/dataCollectionRules', parameters('DCRNameEnterpriseApps')), 'logicAppRole')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deploymentScripts', variables('DelayScriptName'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '3913510d-42f4-4e42-8a64-420c390055eb')]", // Monitoring Metrics Publisher
+                "principalId": "[reference(resourceId('Microsoft.Logic/workflows', parameters('LogicAppNameEnterpriseApps')), '2019-05-01', 'Full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+            },
+            "scope": "[resourceId('Microsoft.Insights/dataCollectionRules', parameters('DCRNameEnterpriseApps'))]"
+        }
+
+    ],
+  "outputs": {
+    "logicAppManagedIdentityObjectId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Logic/workflows', parameters('LogicAppNameEnterpriseApps')), '2019-05-01', 'Full').identity.principalId]"
+    }
+  }
+}
